@@ -1,3 +1,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+body{
+    overflow-x: hidden;
+    /* display: flex;
+    flex-direction: column;
+    height: 100vh;
+    border: 20px solid pink; */
+    position: relative;
+    min-height: 100vh;
+}
