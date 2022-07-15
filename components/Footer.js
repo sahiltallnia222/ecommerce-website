@@ -8,8 +8,8 @@ const Footer = () => {
         <div className="container px-5 py-10 mx-auto flex md:items-center lg:items-start md:flex-row md:flex-nowrap flex-wrap flex-col">
           <div className="w-64 flex-shrink-0 md:mx-0 mx-auto text-center md:text-left">
             <Link href="/">
-            <a className="flex title-font font-medium items-center md:justify-start justify-center text-gray-900">
-              <Image className="cursor-pointer" src="/images/logo.webp" width={200} height={50} />
+            <a className="ml-6 flex title-font font-medium items-center md:justify-start justify-center text-gray-900">
+              <Image className="cursor-pointer" src="/images/weblogo.png" width={140} height={50} />
             </a>
             </Link>
             <p className="mt-2 text-sm ml-6 text-gray-500">
@@ -92,7 +92,7 @@ const Footer = () => {
         <div className="bg-gray-100">
           <div className="container mx-auto py-4 px-5 flex flex-wrap flex-col sm:flex-row">
             <p className="text-gray-500 text-sm text-center sm:text-left">
-            © 2022 CodesWear.com —
+            © 2022 ecommerce.com —
               <a
                 href="https://twitter.com/knyttneve"
                 rel="noopener noreferrer"

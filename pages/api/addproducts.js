@@ -17,7 +17,6 @@ const handler = async (req, res) => {
           availableQty
         } = req.body[i];
         let slug=title.toLowerCase().split(' ').join('-')+'-'+color.toLowerCase()+'-'+size.toLowerCase()
-        console.log(slug);
         let p = new Product({
           title,
           slug,

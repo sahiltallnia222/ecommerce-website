@@ -15,7 +15,7 @@ export default function Home() {
         <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png"/>
       </Head>
       <div className=" relative h-[30vh] md:h-[70vh] w-[100%]">
-      <Image src="/images/home.jpg" layout="fill" alt="banner image"/>
+      <Image src="/images/banner.webp" layout="fill" alt="banner image"/>
       </div>
       <ToastContainer position="bottom-center" autoClose={2500} />
     </div>

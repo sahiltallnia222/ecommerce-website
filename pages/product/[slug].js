@@ -1,17 +1,35 @@
 import axios from "axios";
-import { useState, useRef } from "react";
+import { useState, useRef,useEffect } from "react";
 import { useRouter } from "next/router";
-import Link from "next/link";
 import mongoose from "mongoose";
 import Product from "../../models/Product";
 import { toast } from "react-toastify";
-const slug = ({ addToCart, product, slugMaker, buyNow }) => {
+const slug = ({ addToCart, product, slugMaker, buyNow, cart }) => {
   const router = useRouter();
   const { slug } = router.query;
   const [pin, setPin] = useState();
+  const [disable, setDisable] = useState(false)
+  const [buyDisable, setBuyDisable] = useState(false)
   const [serviceability, setServiceability] = useState();
   const _title = product.title.split(" ").join("-").toLowerCase();
   const ref = useRef();
+  useEffect(()=>{
+    if(product.availableQty==0){
+      setDisable(true)
+      setBuyDisable(true)
+    }
+    else if(cart[slug] && product.availableQty>cart[slug].qty){
+      setDisable(false);
+      setBuyDisable(false)
+    }
+    else if(!cart[slug] && product.availableQty>0){
+      setDisable(false)
+      setBuyDisable(false)
+    }
+    else{
+      setDisable(true);
+    }
+  })
   const checkServiceAbility = async () => {
     try {
       const res = await axios.get("http://localhost:3000/api/pincode");
@@ -38,10 +56,60 @@ const slug = ({ addToCart, product, slugMaker, buyNow }) => {
     );
   };
   const handleClrClick = (lnk) => {
-    if (ref) {
-      ref.current.value = `${slug.split("-").at(-1)}`;
-    }
     router.push(`/product/${lnk.toLowerCase()}`);
+  };
+  const handleAddToCart = () => {
+    if(Object.keys(cart).length==0 && product.availableQty>0){
+      toast.success("Product Added to Cart", {
+        position: "bottom-center",
+        autoClose: 2500,
+      });
+      addToCart(
+        slug,
+        slug.split("-").at(-1).toUpperCase(),
+        product.price,
+        product.title,
+        slug.split("-").at(-2).toUpperCase()
+      );
+    }
+    else if(Object.keys(cart).length>0 && cart[slug]){
+      if(product.availableQty>cart[slug].qty){
+        toast.success("Product Added to Cart", {
+          position: "bottom-center",
+          autoClose: 2500,
+        });
+        addToCart(
+          slug,
+          slug.split("-").at(-1).toUpperCase(),
+          product.price,
+          product.title,
+          slug.split("-").at(-2).toUpperCase()
+        );
+      }
+      if(product.availableQty==cart[slug].qty){
+        setDisable(true)
+      }
+    }
+    else if(Object.keys(cart).length>0 &&  !cart[slug] && product.availableQty>0){
+      toast.success("Product Added to Cart", {
+        position: "bottom-center",
+        autoClose: 2500,
+      });
+      addToCart(
+        slug,
+        slug.split("-").at(-1).toUpperCase(),
+        product.price,
+        product.title,
+        slug.split("-").at(-2).toUpperCase()
+      );
+    }
+    else{
+      toast.error("Out of Stock", {
+        position: "bottom-center",
+        autoClose: 2500,
+      });
+      setDisable(true)
+    }
   };
   return (
     <div>
@@ -86,6 +154,7 @@ const slug = ({ addToCart, product, slugMaker, buyNow }) => {
                   <div className="relative">
                     <select
                       ref={ref}
+                      value={`${slug.split("-").at(-1)}`}
                       onChange={(e) => {
                         handleSelectClick(e.target.value);
                       }}
@@ -96,16 +165,16 @@ const slug = ({ addToCart, product, slugMaker, buyNow }) => {
                       ) && <option value="sm">SM</option>}
                       {Object.keys(slugMaker[slug.split("-").at(-2)]).includes(
                         "MD"
-                      ) && <option>MD</option>}
+                      ) && <option value="md">MD</option>}
                       {Object.keys(slugMaker[slug.split("-").at(-2)]).includes(
                         "L"
-                      ) && <option>L</option>}
+                      ) && <option value="l">L</option>}
                       {Object.keys(slugMaker[slug.split("-").at(-2)]).includes(
                         "XL"
                       ) && <option value="xl">XL</option>}
                       {Object.keys(slugMaker[slug.split("-").at(-2)]).includes(
                         "XXL"
-                      ) && <option>XXL</option>}
+                      ) && <option value="xxl">XXL</option>}
                     </select>
                     <span className="absolute right-0 top-0 h-full w-10 text-center text-gray-600 pointer-events-none flex items-center justify-center">
                       <svg
@@ -124,36 +193,29 @@ const slug = ({ addToCart, product, slugMaker, buyNow }) => {
                 </div>
               </div>
               <div className="flex flex-row items-center gap-x-8">
-                <p className="text-xl font-bold">₹ {product.price}</p>
-                <button
+               {disable? <p className="text-xl font-bold">Out of Stock!</p>:<p className="text-xl font-bold">₹ {product.price}</p>}
+                <button disabled={buyDisable}
                   onClick={() => {
-                    buyNow(
-                      slug,
-                      slug.split("-").at(-1).toUpperCase(),
-                      product.price,
-                      product.title,
-                      slug.split("-").at(-2).toUpperCase()
-                    );
+                    if(product.availableQty>0){
+                      buyNow(
+                        slug,
+                        slug.split("-").at(-1).toUpperCase(),
+                        product.price,
+                        product.title,
+                        slug.split("-").at(-2).toUpperCase()
+                      );
+                    }
+                    else{
+                      return;
+                    }
                   }}
-                  className="bg-[#db2777] py-2 px-3 text-white rounded"
+                  className="bg-blue-500 py-2 px-3 disabled:bg-pink-300 disabled:cursor-not-allowed cursor-pointer text-white rounded"
                 >
                   Buy Now
                 </button>
-                <button
-                  onClick={() => {
-                    toast.success("Product Added to Cart", {
-                      position: "bottom-center",
-                      autoClose: 2500,
-                    });
-                    addToCart(
-                      slug,
-                      slug.split("-").at(-1).toUpperCase(),
-                      product.price,
-                      product.title,
-                      slug.split("-").at(-2).toUpperCase()
-                    );
-                  }}
-                  className="bg-[#db2777] py-2 px-3 text-white rounded"
+                <button disabled={disable}
+                  onClick={handleAddToCart}
+                  className="bg-blue-500 disabled:bg-pink-300 disabled:cursor-not-allowed cursor-pointer py-2 px-3 text-white rounded"
                 >
                   Add to Cart
                 </button>
@@ -174,7 +236,7 @@ const slug = ({ addToCart, product, slugMaker, buyNow }) => {
                   />
                   <button
                     onClick={checkServiceAbility}
-                    className="bg-[#db2777] py-2 px-4 text-white rounded"
+                    className="bg-blue-500 py-2 px-4 text-white rounded"
                   >
                     Check
                   </button>

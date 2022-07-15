@@ -9,7 +9,7 @@ const login = () => {
   const router=useRouter()
   const handleSubmit=(e)=>{
     e.preventDefault()
-    axios.post('http://localhost:3000/api/login',{email,password})
+    axios.post(`${process.env.NEXT_PUBLIC_HOST}/api/login`,{email,password})
     .then(res=>{
       localStorage.setItem('token',res.data.token)
       toast.success('Login Successfully',{

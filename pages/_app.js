@@ -4,14 +4,21 @@ import "../styles/globals.css";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { ToastContainer } from 'react-toastify';
+import LoadingBar from 'react-top-loading-bar'
 import 'react-toastify/dist/ReactToastify.css';
 function MyApp({ Component, pageProps }) {
   const [cart, setCart] = useState({});
   const [subTotal, setSubTotal] = useState(0);
   const [user,setUser]=useState({value:null})
+  const [progress, setProgress] = useState(0)
   const router = useRouter();
-  // const [key, setKey] = useState(0)
   useEffect(() => {
+    router.events.on('routeChangeStart',()=>{
+      setProgress(40)
+    })
+    router.events.on('routeChangeComplete',()=>{
+      setProgress(100)
+    })
     try {
       if (localStorage.getItem("cart")) {
         setCart(JSON.parse(localStorage.getItem("cart")));
@@ -26,7 +33,6 @@ function MyApp({ Component, pageProps }) {
     let token=localStorage.getItem('token')
     if(token){
       setUser({value:'user'})
-      // setKey(Math.random())
     }
     else{
       setUser({value:null})
@@ -84,8 +90,13 @@ function MyApp({ Component, pageProps }) {
   return (
     <div className="flex flex-col">
       <div className="sticky bg-white top-0 left-0 z-10">
+        <LoadingBar
+          color='rgb(59 130 246)'
+          progress={progress}
+          waitingTime={400}
+          onLoaderFinished={()=>{setProgress(0)}}
+        />
         <Navbar
-          // key={key}
           cart={cart}
           addToCart={addToCart}
           removeFromCart={removeFromCart}
@@ -109,8 +120,8 @@ function MyApp({ Component, pageProps }) {
       <div>
         <Footer />
       </div>
+      <ToastContainer position="bottom-center" autoClose={2500} />
     </div>
   );
 }
-
 export default MyApp;
